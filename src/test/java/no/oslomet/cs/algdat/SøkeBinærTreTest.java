@@ -103,6 +103,16 @@ class Oppgave3Test {
     }
 
     @Test
+    void postOrdenDiverseLike() {
+        SøkeBinærTre<Integer> s =
+                new SøkeBinærTre<>(Comparator.naturalOrder());
+        int[] tabell = {6, 3, 9, 1, 5, 7, 10, 2, 4, 6, 8, 11, 8};
+        for (int i : tabell) s.leggInn(i);
+        assertDoesNotThrow(s::toStringPostOrder, "Får feilmelding på større tre med noen repeterte elementer.");
+        assertEquals("[2, 1, 4, 5, 3, 6, 8, 8, 7, 11, 10, 9, 6]", s.toStringPostOrder(), "Postorden er feil i større tre med noen repeterte elementer. Feilen ligger muligens i leggInn");
+    }
+
+    @Test
     void postOrdenOmstokking() {
         SøkeBinærTre<Integer> s = new SøkeBinærTre<>(Comparator.naturalOrder());
         int[] tabell = {5, 4, 3, 2, 1};
@@ -182,10 +192,20 @@ class Oppgave5Test {
         int[] a = {6, 3, 9, 1, 5, 7, 10, 2, 4, 8, 11, 6, 8};
         for (int verdi : a) tre.leggInn(verdi);
 
-        assertTrue(tre.fjern(2), "Gir feil svar når vi fjerner eksisterende element");
+        assertTrue(tre.fjern(2), "Påstår vi ikke fjerner eksisterende element");
         assertEquals("[1, 4, 5, 3, 6, 8, 8, 7, 11, 10, 9, 6]", tre.toStringPostOrder(), "Fjerner ikke element eller gjør noe annet galt med treet.");
-        assertEquals(12, tre.antall(), "Minker ikke antall elementer når et blir fjernet.");
-        assertFalse(tre.inneholder(2), "Finner verdi i treet etter fjerning.");
+        assertEquals(12, tre.antall(), "Minker ikke antall elementer når ett element blir fjernet.");
+        assertFalse(tre.inneholder(2), "Finner fremdeles element etter det er fjernet");
+
+        assertTrue(tre.fjern(3), "Påstår vi ikke fjerner eksisterende element");
+        assertEquals("[1, 5, 4, 6, 8, 8, 7, 11, 10, 9, 6]", tre.toStringPostOrder(), "Fjerner ikke element eller gjør noe annet galt med treet når element fjernes. Oppdaterer du foreldrepekere?");
+        assertEquals(11, tre.antall(), "Feil antall element etter at et element er fjernet.");
+        assertFalse(tre.inneholder(3), "Finner fremdeles element etter det er fjernet");
+
+        assertTrue(tre.fjern(10), "Påstår vi ikke fjerner eksisterende element");
+        assertEquals("[1, 5, 4, 6, 8, 8, 7, 11, 9, 6]", tre.toStringPostOrder(), "Fjerner ikke element eller gjør noe annet galt med treet når vi fjerner eksisterende element. Oppdaterer du foreldrepekeren?");
+        assertEquals(10, tre.antall(), "Minker ikke antall elementer når et blir fjernet.");
+        assertFalse(tre.inneholder(10), "Finner verdi i treet etter fjerning.");
     }
 
     @Test
@@ -284,9 +304,9 @@ class Oppgave5Test {
 
         Iterator<Integer> it = tre.iterator();
         it.next(); it.next();
-        tre.nullstill(); it.next();
+        tre.nullstill();
         try {
-            it.next();
+            it.next(); it.next();
             assertFalse(it.hasNext(),
                     "Nodeverdier og pekere i tre skal alle nullstilles når man nullstiller. Har du kun fjernet hode og satt antall til 0?");
         } catch (NullPointerException ignored) {}
