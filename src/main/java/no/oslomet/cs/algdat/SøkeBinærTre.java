@@ -90,24 +90,74 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
     public boolean tom() { return antall == 0; }
 
     // Oppgave 1
-    public boolean leggInn(T verdi) { throw new UnsupportedOperationException(); }
+    public boolean leggInn(T verdi) {
+        if (verdi == null) throw new NullPointerException();
+        Node<T> currentNode = rot, prevNode = null;
+        int cmp = 0;
+        while(currentNode != null){
+            prevNode = currentNode;
+            cmp = comp.compare(verdi, currentNode.verdi);
+            currentNode = cmp < 0 ? currentNode.venstre : currentNode.høyre;
+        }
+        currentNode = new Node<>(verdi, null, null, prevNode);
+        if(prevNode == null) rot = currentNode;
+        else if(cmp < 0) prevNode.venstre = currentNode;
+        else prevNode.høyre = currentNode;
+
+        antall++;
+        return true;
+    }
 
 
     // Oppgave 2
-    public int antall(T verdi){ throw new UnsupportedOperationException(); }
+    public int antall(T verdi){
+        if(verdi == null)return 0;
+        int antallDukketOpp = 0;
+        Node<T> currentNode = rot;
+
+        while (currentNode != null) {
+            int cmp = comp.compare(verdi, currentNode.verdi);
+            if (cmp < 0) currentNode = currentNode.venstre;
+            else if (cmp > 0) currentNode = currentNode.høyre;
+            else {
+                antallDukketOpp++;
+                currentNode = currentNode.høyre;
+            }
+        }
+        return antallDukketOpp;
+    }
 
     // Oppgave 3
     private Node<T> førstePostorden(Node<T> p) {
-        throw new UnsupportedOperationException();
+        Node<T> currentNode = p;
+        while(true){
+            if(currentNode.venstre != null) currentNode = currentNode.venstre;
+            else if(currentNode.høyre != null) currentNode = currentNode.høyre;
+            else return currentNode;
+        }
     }
 
     private Node<T> nestePostorden(Node<T> p) {
-        throw new UnsupportedOperationException();
+        Node<T> f = p.forelder;
+        if(f == null) {
+            return null;
+        }
+        else if(f.høyre == p || f.høyre == null){
+            return f;
+        }else if(f.høyre != null){
+            return førstePostorden(f.høyre);
+        }else{
+            return f;
+        }
     }
 
     // Oppgave 4
     public void postOrden(Oppgave<? super T> oppgave) {
-        throw new UnsupportedOperationException();
+        Node<T> currentNode = førstePostorden(rot);
+        while(currentNode != null){
+            oppgave.utførOppgave(currentNode.verdi);
+            currentNode = nestePostorden(currentNode);
+        }
     }
 
     public void postOrdenRekursiv(Oppgave<? super T> oppgave) {
@@ -115,7 +165,11 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
     }
 
     private void postOrdenRekursiv(Node<T> p, Oppgave<? super T> oppgave) {
-        throw new UnsupportedOperationException();
+        if(p != null){
+            postOrdenRekursiv(p.venstre, oppgave);
+            postOrdenRekursiv(p.høyre, oppgave);
+            oppgave.utførOppgave(p.verdi);
+        }
     }
 
     // Oppgave 5
