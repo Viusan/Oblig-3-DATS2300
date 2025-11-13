@@ -173,7 +173,67 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
     }
 
     // Oppgave 5
-    public boolean fjern(T verdi) { throw new UnsupportedOperationException(); }
+    public boolean fjern(T verdi) {
+        //finne noden
+        Node<T> currentNode = rot;
+        while(currentNode != null){
+            int cmp = comp.compare(verdi, currentNode.verdi);
+            if(cmp < 0) currentNode = currentNode.venstre;
+            else if(cmp > 0) currentNode = currentNode.høyre;
+            else break; //vi har funnet noden hvis cmp er lik 0
+        }
+
+        //finne ut hvilken side vi er på
+        Node<T> forelder = currentNode.forelder;
+        boolean isRoot = currentNode.forelder == null;
+        boolean isLeft = forelder != null && forelder.venstre == currentNode;
+
+        //slette node med 0 barn
+        if(currentNode.venstre == null && currentNode.høyre == null){
+            if(isRoot){
+                rot = null;
+            }else{
+                currentNode.forelder = null;
+                currentNode.verdi = null;
+                if(isLeft) forelder.venstre = null;
+                else forelder.høyre = null;
+            }
+            antall--;
+            return true;
+        }else if(currentNode.venstre == null && currentNode.høyre != null || currentNode.venstre != null && currentNode.høyre == null){
+            //1 barn
+            Node<T> child = (currentNode.venstre != null) ? currentNode.venstre : currentNode.høyre
+            if(isRoot){
+                rot = child;
+                child.forelder = null;
+                antall--;
+                return true;
+            }else if(isLeft){
+                forelder.venstre = child;
+                child.forelder = forelder;
+                currentNode.forelder = null;
+                currentNode.venstre = null;
+                currentNode.høyre = null;
+                antall--;
+                return true;
+            }else{
+                forelder.høyre = child;
+                child.forelder = forelder;
+                currentNode.forelder = null;
+                currentNode.høyre = null;
+                currentNode.venstre = null;
+                antall--;
+                return true;
+            }
+        }else{
+            //2 barn
+            Node<T> ombytte = currentNode.høyre;
+            while(ombytte.venstre != null){
+                ombytte = ombytte.venstre;
+            }
+
+        }
+    }
     public int fjernAlle(T verdi) { throw new UnsupportedOperationException(); }
     public void nullstill() { throw new UnsupportedOperationException(); }
 }
