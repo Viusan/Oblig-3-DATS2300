@@ -174,6 +174,7 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
 
     // Oppgave 5
     public boolean fjern(T verdi) {
+        if(verdi == null || rot == null) return false;
         //finne noden
         Node<T> currentNode = rot;
         while(currentNode != null){
@@ -182,6 +183,8 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
             else if(cmp > 0) currentNode = currentNode.høyre;
             else break; //vi har funnet noden hvis cmp er lik 0
         }
+
+        if(currentNode == null) return false;
 
         //finne ut hvilken side vi er på
         Node<T> forelder = currentNode.forelder;
@@ -202,7 +205,7 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
             return true;
         }else if(currentNode.venstre == null && currentNode.høyre != null || currentNode.venstre != null && currentNode.høyre == null){
             //1 barn
-            Node<T> child = (currentNode.venstre != null) ? currentNode.venstre : currentNode.høyre
+            Node<T> child = (currentNode.venstre != null) ? currentNode.venstre : currentNode.høyre;
             if(isRoot){
                 rot = child;
                 child.forelder = null;
@@ -227,13 +230,50 @@ public class SøkeBinærTre<T>  implements Beholder<T> {
             }
         }else{
             //2 barn
-            Node<T> ombytte = currentNode.høyre;
-            while(ombytte.venstre != null){
-                ombytte = ombytte.venstre;
+            Node<T> ombytte = currentNode;
+            Node<T> oForelder = ombytte;
+            currentNode = ombytte.høyre;
+
+            while(currentNode.venstre != null){
+                oForelder = currentNode;
+                currentNode = currentNode.venstre;
             }
 
+            ombytte.verdi = currentNode.verdi;
+            Node<T> child = currentNode.høyre;//Hvis den har høyre barn
+
+            if(oForelder == ombytte){
+                ombytte.høyre = child;
+            }else{
+                oForelder.venstre = child;
+            }
+            if(child != null){
+                child.forelder = oForelder;
+            }
+
+            antall--;
+            return true;
         }
     }
-    public int fjernAlle(T verdi) { throw new UnsupportedOperationException(); }
-    public void nullstill() { throw new UnsupportedOperationException(); }
+    public int fjernAlle(T verdi) {
+        if(rot == null) return 0;
+        int antallFjernet = 0;
+        while(fjern(verdi)){
+            antallFjernet++;
+        }
+        return antallFjernet;
+    }
+
+    public void nullstill() {
+        if(rot == null) return;
+        Node<T> start = førstePostorden(rot);
+        while(start != null){
+            Node<T> neste = nestePostorden(start);
+            start.venstre = start.høyre = start.forelder = null;
+            antall--;
+            start = neste;
+        }
+        rot = null;
+        antall = 0;
+    }
 }
